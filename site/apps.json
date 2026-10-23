@@ -1,0 +1,28 @@
+{
+  "apps": [
+    {
+      "id": "puddle",
+      "name": "Puddle",
+      "url": "https://puddle.kevspowertools.com/",
+      "description": "Messy data to tidy, in your browser",
+      "summary": "Build cleansing steps on a canvas and run them on DuckDB in your browser, so your data never leaves your machine.",
+      "status": "live"
+    },
+    {
+      "id": "mermaid-factory",
+      "name": "Mermaid Factory",
+      "url": "https://mermaid.kevspowertools.com/",
+      "description": "Mermaid diagrams with a live preview",
+      "summary": "Write Mermaid diagrams with a live preview and keep as many as you like, with every theme and starters for 28 diagram types.",
+      "status": "live"
+    },
+    {
+      "id": "wellyboot-bi",
+      "name": "Wellyboot BI",
+      "url": "https://wellyboot.kevspowertools.com/",
+      "description": "Charts and dashboards from Puddle data",
+      "summary": "Drag fields from data curated in Puddle into charts, arrange them on a dashboard and share it with a link.",
+      "status": "soon"
+    }
+  ]
+}

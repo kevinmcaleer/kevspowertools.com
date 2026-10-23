@@ -1,0 +1,172 @@
+/* Colours follow Puddle's design system: teal brand for links and focus, amber accent used sparingly. */
+:root {
+  color-scheme: light;
+  --surface: #eef2f1;
+  --surface-raised: #ffffff;
+  --surface-sunken: #e6ecea;
+  --ink: #142120;
+  --ink-muted: #4a5c59;
+  --line: #d6dfdd;
+  --line-strong: #7a8b87;
+  --brand: #0b6b6b;
+  --brand-tint: #d7ecea;
+  --accent: #f0a419;
+  --accent-ink: #8a5500;
+  --accent-tint: #fcefd3;
+  --shadow: 0 1px 2px rgba(20, 33, 32, 0.08), 0 2px 8px rgba(20, 33, 32, 0.06);
+  --shadow-lift: 0 4px 12px rgba(20, 33, 32, 0.14), 0 1px 3px rgba(20, 33, 32, 0.10);
+
+  --font-display: "Bricolage Grotesque", "Instrument Sans", system-ui, sans-serif;
+  --font-ui: "Instrument Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-full: 999px;
+  --page-width: 1040px;
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --duration: 160ms;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --surface: #0e1716;
+    --surface-raised: #17221f;
+    --surface-sunken: #0a1110;
+    --ink: #e4ecea;
+    --ink-muted: #9fb0ac;
+    --line: #26332f;
+    --line-strong: #4f615d;
+    --brand: #4cc2bb;
+    --brand-tint: #123532;
+    --accent: #f0a419;
+    --accent-ink: #f5c060;
+    --accent-tint: #33270f;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.3);
+    --shadow-lift: 0 4px 12px rgba(0, 0, 0, 0.5), 0 1px 3px rgba(0, 0, 0, 0.4);
+  }
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  color: var(--ink);
+  font: 400 16px/1.55 var(--font-ui);
+  -webkit-font-smoothing: antialiased;
+}
+
+.masthead, main, .foot {
+  width: 100%;
+  max-width: var(--page-width);
+  margin: 0 auto;
+  padding-inline: var(--space-4);
+}
+
+.masthead { padding-block: var(--space-12) var(--space-8); }
+
+.mark { width: 40px; height: 40px; fill: var(--ink); }
+.mark .mark-accent { fill: var(--accent); }
+
+h1 {
+  margin: var(--space-4) 0 var(--space-2);
+  font: 700 clamp(32px, 6vw, 48px)/1.1 var(--font-display);
+  letter-spacing: -0.02em;
+}
+
+.lede { margin: 0; max-width: 56ch; color: var(--ink-muted); font-size: 18px; }
+
+main { flex: 1; }
+
+.tools {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--space-4);
+}
+
+.tools > li { display: flex; }
+
+.card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-6);
+  background: var(--surface-raised);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  color: inherit;
+  text-decoration: none;
+  transition: transform var(--duration) var(--ease-out), box-shadow var(--duration) var(--ease-out), border-color var(--duration) var(--ease-out);
+}
+
+a.card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lift); border-color: var(--brand); }
+a.card:focus-visible { outline: 2px solid var(--brand); outline-offset: 3px; }
+
+.glyph {
+  width: 40px;
+  height: 40px;
+  padding: var(--space-2);
+  border-radius: var(--radius-md);
+  background: var(--brand-tint);
+  fill: none;
+  stroke: var(--brand);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.card h2 {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin: var(--space-2) 0 0;
+  font: 600 22px/1.25 var(--font-display);
+}
+
+.card p { margin: 0; flex: 1; color: var(--ink-muted); }
+
+.host {
+  margin-top: var(--space-3);
+  font: 500 13px/1.4 var(--font-mono);
+  color: var(--brand);
+}
+
+a.card .host::after { content: " \2192"; }
+
+.card.soon { background: var(--surface-sunken); box-shadow: none; border-style: dashed; border-color: var(--line-strong); }
+.card.soon .glyph { background: var(--accent-tint); stroke: var(--accent-ink); }
+.card.soon .host { color: var(--ink-muted); }
+
+.badge {
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-full);
+  background: var(--accent-tint);
+  color: var(--accent-ink);
+  font: 600 12px/1.5 var(--font-ui);
+}
+
+.foot { padding-block: var(--space-12) var(--space-8); color: var(--ink-muted); font-size: 14px; }
+.foot a { color: var(--brand); }
+
+@media (prefers-reduced-motion: reduce) {
+  .card { transition: none; }
+  a.card:hover { transform: none; }
+}

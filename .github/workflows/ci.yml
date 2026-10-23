@@ -1,0 +1,62 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    name: Tests and image
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm test
+      - uses: docker/setup-buildx-action@v3
+      - name: Build the image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          load: true
+          tags: kevspowertools:ci
+      - name: Run the image and check what it serves
+        run: |
+          docker run -d --name site --read-only --tmpfs /tmp -p 8090:8080 kevspowertools:ci
+          for i in $(seq 1 30); do curl -sf http://localhost:8090/healthz && break; sleep 1; done
+          curl -sf http://localhost:8090/ | grep -q 'href="https://puddle.kevspowertools.com/"'
+          curl -sfI http://localhost:8090/ | grep -qi '^content-security-policy:'
+          headers=$(curl -sfI http://localhost:8090/apps.json)
+          echo "$headers"
+          echo "$headers" | grep -qi '^access-control-allow-origin: \*'
+          echo "$headers" | grep -qi '^cross-origin-resource-policy: cross-origin'
+          echo "$headers" | grep -qi '^content-type: application/json'
+          curl -sf http://localhost:8090/apps.json | python3 -c 'import json,sys; assert json.load(sys.stdin)["apps"]'
+
+  publish:
+    name: Publish the image
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [test]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}:latest
+            ghcr.io/${{ github.repository }}:${{ github.sha }}

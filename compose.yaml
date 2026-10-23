@@ -1,0 +1,35 @@
+# The kevspowertools.com landing page as a Docker Compose stack. From the repository root:
+#   docker compose up -d                      # the page on http://localhost:8090, plus the profiles COMPOSE_PROFILES lists
+#   docker compose --profile tunnel up -d     # also a Cloudflare Tunnel (needs CLOUDFLARE_TUNNEL_TOKEN)
+# Settings come from the environment or a .env file next to this one: `cp .env.example .env`. See README.md.
+# Never use ${VAR:?} here: Compose checks every service, profiles that are off included, so plain `up` would fail.
+services:
+  site:
+    # Builds from the Dockerfile if the image is missing. Set SITE_IMAGE=ghcr.io/kevinmcaleer/kevspowertools.com:latest
+    # to run the multi-arch image CI publishes from main instead.
+    image: ${SITE_IMAGE:-kevspowertools:latest}
+    build: .
+    restart: unless-stopped
+    read_only: true
+    # nginx keeps its pid and temporary files here.
+    tmpfs: [/tmp]
+    ports: ['${SITE_PORT:-8090}:8080']
+    healthcheck:
+      test: ['CMD', 'wget', '-q', '-O', '/dev/null', 'http://127.0.0.1:8080/healthz']
+      interval: 30s
+      timeout: 3s
+      start_period: 5s
+      retries: 3
+
+  # cloudflared connects out to Cloudflare, so no port is opened. The tunnel's public hostname kevspowertools.com
+  # points at http://site:8080. Several nodes running this stack with the same token are replicas of one tunnel.
+  cloudflared:
+    profiles: [tunnel]
+    image: ${CLOUDFLARED_IMAGE:-cloudflare/cloudflared:latest}
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run
+    environment:
+      TUNNEL_TOKEN: ${CLOUDFLARE_TUNNEL_TOKEN:-}
+    depends_on:
+      site:
+        condition: service_healthy
