@@ -22,7 +22,7 @@ Each entry has:
 | --- | --- |
 | `id` | Stable id, also picks the card's icon in `scripts/build.mjs` |
 | `name` | Display name |
-| `url` | Where the tool lives (https) |
+| `url` | Where the tool lives (https). A tool outside kevspowertools.com opens in a new tab |
 | `description` | A short line, for the switcher |
 | `summary` | A sentence or two, for the card |
 | `status` | `live` for a link card, `soon` for a "Coming soon" card with no link |

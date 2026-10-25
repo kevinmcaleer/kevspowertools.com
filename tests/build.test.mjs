@@ -3,18 +3,32 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { build, renderCard, renderIndex, validateApps } from '../scripts/build.mjs';
+import { build, isExternal, renderCard, renderIndex, validateApps } from '../scripts/build.mjs';
 
 const apps = JSON.parse(readFileSync(new URL('../site/apps.json', import.meta.url), 'utf8'));
 const app = (over = {}) => ({
   id: 'x', name: 'X', url: 'https://x.kevspowertools.com/', description: 'd', summary: 's', status: 'live', ...over,
 });
 
-test('apps.json lists Puddle, Mermaid Factory and Wellyboot BI on kevspowertools.com', () => {
+test('apps.json lists the tools, with NoodlePlanner and FilmColab on their own sites', () => {
   const list = validateApps(apps);
-  assert.deepEqual(list.map((a) => a.id), ['puddle', 'mermaid-factory', 'wellyboot-bi']);
-  for (const a of list) assert.match(new URL(a.url).host, /^[a-z-]+\.kevspowertools\.com$/);
+  assert.deepEqual(list.map((a) => a.id), ['puddle', 'mermaid-factory', 'wellyboot-bi', 'noodleplanner', 'filmcolab']);
+  const host = (id) => new URL(list.find((a) => a.id === id).url).host;
+  for (const id of ['puddle', 'mermaid-factory', 'wellyboot-bi']) assert.match(host(id), /^[a-z-]+\.kevspowertools\.com$/);
+  assert.equal(host('noodleplanner'), 'www.noodleplanner.com');
+  assert.equal(host('filmcolab'), 'www.filmcolab.com');
   assert.equal(list.find((a) => a.id === 'wellyboot-bi').status, 'soon');
+});
+
+test('a tool on another site opens in a new tab', () => {
+  assert.equal(isExternal('https://x.kevspowertools.com/'), false);
+  assert.equal(isExternal('https://kevspowertools.com/'), false);
+  assert.equal(isExternal('https://www.filmcolab.com/'), true);
+  assert.equal(isExternal('https://evilkevspowertools.com/'), true);
+  const html = renderCard(app({ url: 'https://www.noodleplanner.com/' }));
+  assert.match(html, /class="card external"/);
+  assert.match(html, /target="_blank" rel="noopener noreferrer"/);
+  assert.doesNotMatch(renderCard(app()), /target=/);
 });
 
 test('validateApps rejects a missing field, a duplicate id, an unknown status and plain http', () => {
@@ -55,6 +69,8 @@ test('the built page has a card per app and serves apps.json unchanged', () => {
   assert.equal((html.match(/class="card/g) ?? []).length, apps.apps.length);
   assert.match(html, /href="https:\/\/puddle\.kevspowertools\.com\/"/);
   assert.match(html, /href="https:\/\/mermaid\.kevspowertools\.com\/"/);
+  assert.match(html, /href="https:\/\/www\.noodleplanner\.com\/" target="_blank"/);
+  assert.match(html, /href="https:\/\/www\.filmcolab\.com\/" target="_blank"/);
   assert.doesNotMatch(html, /href="https:\/\/wellyboot/);
   assert.doesNotMatch(html, /<script/);
   assert.equal(readFileSync(join(out, 'apps.json'), 'utf8'), readFileSync(new URL('../site/apps.json', import.meta.url), 'utf8'));
