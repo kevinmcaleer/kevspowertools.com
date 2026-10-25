@@ -23,6 +23,22 @@
       "description": "Charts and dashboards from Puddle data",
       "summary": "Drag fields from data curated in Puddle into charts, arrange them on a dashboard and share it with a link.",
       "status": "soon"
+    },
+    {
+      "id": "noodleplanner",
+      "name": "NoodlePlanner",
+      "url": "https://www.noodleplanner.com/",
+      "description": "Plan it out, step by step",
+      "summary": "Plan it out, step by step, at noodleplanner.com.",
+      "status": "live"
+    },
+    {
+      "id": "filmcolab",
+      "name": "FilmColab",
+      "url": "https://www.filmcolab.com/",
+      "description": "Make films together",
+      "summary": "Make films together, at filmcolab.com.",
+      "status": "live"
     }
   ]
 }
